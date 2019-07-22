@@ -1,3 +1,10 @@
+mod common;
+mod address;
+mod error;
+mod opt;
+
+use crate::common::*;
+
 fn main() {
-    println!("Hello, world!");
+    let _opt = Opt::from_args();
 }
