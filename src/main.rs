@@ -1,5 +1,5 @@
-mod common;
 mod address;
+mod common;
 mod error;
 mod opt;
 
