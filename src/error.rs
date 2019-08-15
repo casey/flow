@@ -3,19 +3,28 @@ use std::net::AddrParseError;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum Error {
-    AddrParse { addr_parse: AddrParseError },
-    NoAt { bad_addr: String },
+    AddrParse {
+        addr_parse: AddrParseError,
+        bad_addr: String,
+    },
+    NoAt {
+        bad_addr: String,
+    },
 }
 
 impl Display for Error {
-    fn fmt(&self, _f: &mut Formatter) -> fmt::Result {
-        unimplemented!()
-    }
-}
-
-impl From<AddrParseError> for Error {
-    fn from(addr_parse: AddrParseError) -> Self {
-        Error::AddrParse { addr_parse }
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Self::AddrParse {
+                addr_parse,
+                bad_addr,
+            } => write!(f, "Invalid address, {}: {}", addr_parse, bad_addr),
+            Self::NoAt { bad_addr } => write!(
+                f,
+                "Invalid address, expected format `PUBKEY@ADDRESS`: {}",
+                bad_addr
+            ),
+        }
     }
 }
 
@@ -24,12 +33,23 @@ mod tests {
     use super::*;
 
     #[test]
-    fn from_addr_parse_error() {
-        let ip_err = SocketAddr::from_str("invalid ip").unwrap_err();
-        let error: Error = Error::from(ip_err);
-        if let Error::AddrParse { .. } = error {
-            return;
-        }
-        panic!(error);
+    fn addr_parse_display() {
+        let err = Address::from_str("pubkey@ADDRESS").unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "Invalid address, invalid IP address syntax: ADDRESS"
+        );
+    }
+
+    #[test]
+    fn no_at_display() {
+        let err = Error::NoAt {
+            bad_addr: String::from("INVALID_ADDRESS"),
+        };
+
+        assert_eq!(
+            err.to_string(),
+            "Invalid address, expected format `PUBKEY@ADDRESS`: INVALID_ADDRESS"
+        );
     }
 }

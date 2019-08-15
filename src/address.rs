@@ -19,7 +19,11 @@ impl FromStr for Address {
             }
         };
         let pubkey = text[..idx].to_owned();
-        let ip = SocketAddr::from_str(&text[idx + 1..])?;
+        let addr = &text[idx + 1..];
+        let ip = SocketAddr::from_str(addr).map_err(|addr_parse| Error::AddrParse {
+            addr_parse,
+            bad_addr: addr.to_string(),
+        })?;
         Ok(Address { pubkey, ip })
     }
 }
@@ -32,7 +36,7 @@ mod tests {
     fn address_good() -> Result<(), Error> {
         let want = Address {
             pubkey: String::from("pub"),
-            ip: SocketAddr::from_str("127.0.0.1:8080")?,
+            ip: SocketAddr::from_str("127.0.0.1:8080").unwrap(),
         };
         let my_str = "pub@127.0.0.1:8080";
         let have = Address::from_str(my_str)?;
