@@ -6,7 +6,6 @@ pub(crate) struct Opt {
     #[structopt(name = "DESTINATION", long = "destination")]
     _destination: Address,
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
