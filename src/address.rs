@@ -46,9 +46,11 @@ mod tests {
 
     #[test]
     fn no_at() {
-        match Address::from_str("invalid") {
-            Err(Error::NoAt { bad_addr }) => assert_eq!(bad_addr, "invalid"),
-            other => panic!(other),
-        }
+        assert_eq!(
+            Address::from_str("invalid"),
+            Err(Error::NoAt {
+                bad_addr: "invalid".to_owned(),
+            })
+        );
     }
 }

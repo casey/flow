@@ -10,6 +10,9 @@ pub(crate) enum Error {
     NoAt {
         bad_addr: String,
     },
+    PubkeyChar {
+        bad_char: char,
+    },
 }
 
 impl Display for Error {
@@ -24,6 +27,9 @@ impl Display for Error {
                 "Invalid address, expected format `PUBKEY@ADDRESS`: {}",
                 bad_addr
             ),
+            Self::PubkeyChar { bad_char } => {
+                write!(f, "Invalid character {} in hex public key", bad_char)
+            }
         }
     }
 }
