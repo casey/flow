@@ -39,7 +39,7 @@ impl FromStr for Pubkey {
             // most significant bits
             } else {
                 // least significant bits
-                *destination = value;
+                *destination |= value;
             }
         }
 
