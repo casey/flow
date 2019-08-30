@@ -49,10 +49,13 @@ mod tests {
 
     #[test]
     fn addr_parse_display() {
-        let err = Address::from_str("pubkey@ADDRESS").unwrap_err();
+        let pk = &"deadbeef".repeat(8);
+        let ip = "BAD_ADDRESS";
+        let text = format!("{}@{}", pk, ip);
+        let err = Address::from_str(&text).unwrap_err();
         assert_eq!(
             err.to_string(),
-            "Invalid address, invalid IP address syntax: ADDRESS"
+            "Invalid address, invalid IP address syntax: BAD_ADDRESS"
         );
     }
 

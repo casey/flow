@@ -2,7 +2,7 @@ use crate::common::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Address {
-    pubkey: String,
+    pubkey: Pubkey,
     ip: SocketAddr,
 }
 
@@ -18,12 +18,14 @@ impl FromStr for Address {
                 })
             }
         };
-        let pubkey = text[..idx].to_owned();
+
+        let pubkey = Pubkey::from_str(&text[..idx])?;
         let addr = &text[idx + 1..];
         let ip = SocketAddr::from_str(addr).map_err(|addr_parse| Error::AddrParse {
             addr_parse,
             bad_addr: addr.to_string(),
         })?;
+
         Ok(Address { pubkey, ip })
     }
 }
@@ -34,12 +36,14 @@ mod tests {
 
     #[test]
     fn address_from_str() -> Result<(), Error> {
+        let pk = &"deadbeef".repeat(8);
+        let ip = "127.0.0.1:8080";
+        let text = format!("{}@{}", pk, ip);
         let want = Address {
-            pubkey: String::from("pub"),
-            ip: SocketAddr::from_str("127.0.0.1:8080").unwrap(),
+            pubkey: Pubkey::from_str(pk).unwrap(),
+            ip: SocketAddr::from_str(ip).unwrap(),
         };
-        let my_str = "pub@127.0.0.1:8080";
-        let have = Address::from_str(my_str)?;
+        let have = Address::from_str(&text)?;
         assert_eq!(have, want);
         Ok(())
     }

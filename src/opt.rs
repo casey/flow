@@ -13,7 +13,10 @@ mod tests {
     #[test]
     // Test arguement parsing for `flow --destination PUBKEY@IP`
     fn cli_destination() -> Result<(), structopt::clap::Error> {
-        let _opt = Opt::from_iter_safe(vec!["flow", "--destination", "PUBKEY@127.0.0.1:8080"])?;
+        let pk = &"deadbeef".repeat(8);
+        let ip = "127.0.0.1:8080";
+        let text = format!("{}@{}", pk, ip);
+        let _opt = Opt::from_iter_safe(vec!["flow", "--destination", &text])?;
 
         Ok(())
     }
