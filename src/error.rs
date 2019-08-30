@@ -13,6 +13,9 @@ pub(crate) enum Error {
     PubkeyChar {
         bad_char: char,
     },
+    PubkeyLength {
+        bad_length: usize,
+    },
 }
 
 impl Display for Error {
@@ -30,6 +33,12 @@ impl Display for Error {
             Self::PubkeyChar { bad_char } => {
                 write!(f, "Invalid character {} in hex public key", bad_char)
             }
+            Self::PubkeyLength { bad_length } => write!(
+                f,
+                "Invalid pubkey hex length {}, expected {} characters",
+                bad_length,
+                Pubkey::BYTE_LEN * 2
+            ),
         }
     }
 }
@@ -56,6 +65,16 @@ mod tests {
         assert_eq!(
             err.to_string(),
             "Invalid address, expected format `PUBKEY@ADDRESS`: INVALID_ADDRESS"
+        );
+    }
+
+    #[test]
+    fn pubkey_bad_length_display() {
+        let bad_pk = "deadbeef";
+        let err = Pubkey::from_str(bad_pk).unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "Invalid pubkey hex length 8, expected 64 characters"
         );
     }
 }

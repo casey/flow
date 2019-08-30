@@ -33,7 +33,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn address_good() -> Result<(), Error> {
+    fn address_from_str() -> Result<(), Error> {
         let want = Address {
             pubkey: String::from("pub"),
             ip: SocketAddr::from_str("127.0.0.1:8080").unwrap(),

@@ -1,5 +1,6 @@
 use crate::common::*;
 
+#[derive(Debug, PartialEq)]
 pub(crate) struct Pubkey {
     bytes: [u8; 32],
 }
@@ -26,10 +27,21 @@ fn char_to_u8(c: char) -> Result<u8, Error> {
     }
 }
 
+impl Pubkey {
+    pub const BYTE_LEN: usize = 32;
+}
+
 impl FromStr for Pubkey {
     type Err = Error;
 
     fn from_str(text: &str) -> Result<Self, Self::Err> {
+        // Pubkey must be 32 bytes (64 chars) long
+        if text.chars().count() != Pubkey::BYTE_LEN * 2 {
+            return Err(Error::PubkeyLength {
+                bad_length: text.chars().count(),
+            });
+        }
+
         let mut bytes = [0; 32];
         for (i, c) in text.chars().enumerate() {
             let value = char_to_u8(c)?;
@@ -50,6 +62,48 @@ impl FromStr for Pubkey {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn pubkey_from_str() -> Result<(), Error> {
+        #[rustfmt::skip]
+        let want = Pubkey {
+            bytes: [
+                0xde, 0xad, 0xbe, 0xef,
+                0xde, 0xad, 0xbe, 0xef,
+                0xde, 0xad, 0xbe, 0xef,
+                0xde, 0xad, 0xbe, 0xef,
+                0xde, 0xad, 0xbe, 0xef,
+                0xde, 0xad, 0xbe, 0xef,
+                0xde, 0xad, 0xbe, 0xef,
+                0xde, 0xad, 0xbe, 0xef,
+            ],
+        };
+
+        #[rustfmt::skip]
+        let have = Pubkey::from_str(&"deadbeef".repeat(8))?;
+        assert_eq!(have, want);
+        Ok(())
+    }
+
+    #[test]
+    fn pubkey_bad_length() {
+        let bad_pk = "deadbeef";
+        assert_eq!(
+            Pubkey::from_str(bad_pk),
+            Err(Error::PubkeyLength {
+                bad_length: bad_pk.len()
+            })
+        );
+    }
+
+    #[test]
+    fn pubkey_bad_length_multibyte() {
+        let bad_pk = "ضضضضضضضضضضضضضضضضضضضضضضضضضضضضضضضض";
+        assert_eq!(
+            Pubkey::from_str(bad_pk),
+            Err(Error::PubkeyLength { bad_length: 32 })
+        );
+    }
 
     #[test]
     fn char_to_u8_ok() -> Result<(), Error> {
